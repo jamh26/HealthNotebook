@@ -1,3 +1,5 @@
+using System;
+
 namespace HealthNotebook.Entities.DbSet
 {
     public class User : BaseEntity
