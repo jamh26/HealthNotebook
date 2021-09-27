@@ -39,6 +39,17 @@ namespace HealthNotebook.Api
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "HealthNotebook.Api", Version = "v1" });
             });
+
+            services.AddApiVersioning(opt =>
+            {
+                // Provides to the client the differant Api versions that we have
+                opt.ReportApiVersions = true;
+
+                // this will allow the api to automatically provide a default version
+                opt.AssumeDefaultVersionWhenUnspecified = true;
+
+                opt.DefaultApiVersion = ApiVersion.Default;
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

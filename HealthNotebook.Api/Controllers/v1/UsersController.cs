@@ -7,16 +7,17 @@ using HealthNotebook.Entities.DbSet;
 using HealthNotebook.Entities.Dtos.Incoming;
 using Microsoft.AspNetCore.Mvc;
 
-namespace HealthNotebook.Api.Controllers
+namespace HealthNotebook.Api.Controllers.v1
 {
-    [Route("api/[controller]")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     [ApiController]
+    [ApiVersion("1.0")]
     public class UsersController : ControllerBase
     {
         //private AppDbContext _context;
         private IUnitOfWork _unitOfWork;
 
-        public UsersController(IUnitOfWork unitOfWork)//AppDbContext context)
+        public UsersController(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }
