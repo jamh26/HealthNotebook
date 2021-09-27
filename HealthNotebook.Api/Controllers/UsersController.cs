@@ -1,6 +1,8 @@
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using HealthNotebook.DataService.Data;
+using HealthNotebook.DataService.IConfiguration;
 using HealthNotebook.Entities.DbSet;
 using HealthNotebook.Entities.Dtos.Incoming;
 using Microsoft.AspNetCore.Mvc;
@@ -11,25 +13,26 @@ namespace HealthNotebook.Api.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
-        private AppDbContext _context;
+        //private AppDbContext _context;
+        private IUnitOfWork _unitOfWork;
 
-        public UsersController(AppDbContext context)
+        public UsersController(IUnitOfWork unitOfWork)//AppDbContext context)
         {
-            _context = context;
+            _unitOfWork = unitOfWork;
         }
 
         // GET all users
         [HttpGet]
-        public IActionResult GetUsers()
+        public async Task<IActionResult> GetUsers()
         {
-            var users = _context.Users.Where(x => x.Status == 1).ToList();
+            var users = await _unitOfWork.Users.All();
 
             return Ok(users);
         }
 
         // POST
         [HttpPost]
-        public IActionResult AddUser(UserDto user)
+        public async Task<IActionResult> AddUser(UserDto user)
         {
             var _user = new User();
             _user.LastName = user.LastName;
@@ -40,18 +43,19 @@ namespace HealthNotebook.Api.Controllers
             _user.Phone = user.Phone;
             _user.Status =1;
 
-            _context.Users.Add(_user);
-            _context.SaveChanges();
 
-            return Ok(); // return a 201
+            await _unitOfWork.Users.Add(_user);
+            await _unitOfWork.CompleteAsync();
+
+            return CreatedAtRoute("GetUser", new { id = _user.Id }, user); // return a 201
         }
 
         // GET
         [HttpGet]
-        [Route("GetUser")]
-        public IActionResult GetUser(Guid id )
+        [Route("GetUser", Name = "GetUser")]
+        public async Task<IActionResult> GetUser(Guid id)
         {
-            var user = _context.Users.FirstOrDefault(x => x.Id == id);
+            var user = await _unitOfWork.Users.GetById(id);
 
             return Ok(user);
         }

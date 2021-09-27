@@ -13,6 +13,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using HealthNotebook.DataService.Data;
 using Microsoft.EntityFrameworkCore;
+using HealthNotebook.DataService.IConfiguration;
 
 namespace HealthNotebook.Api
 {
@@ -30,6 +31,8 @@ namespace HealthNotebook.Api
         {
             services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
+
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             services.AddControllers();
             services.AddSwaggerGen(c =>
