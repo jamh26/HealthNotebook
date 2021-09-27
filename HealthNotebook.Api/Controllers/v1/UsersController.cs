@@ -9,17 +9,13 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HealthNotebook.Api.Controllers.v1
 {
-    [Route("api/v{version:apiVersion}/[controller]")]
-    [ApiController]
-    [ApiVersion("1.0")]
-    public class UsersController : ControllerBase
+
+    public class UsersController : BaseController
     {
         //private AppDbContext _context;
-        private IUnitOfWork _unitOfWork;
 
-        public UsersController(IUnitOfWork unitOfWork)
+        public UsersController(IUnitOfWork unitOfWork) : base(unitOfWork)
         {
-            _unitOfWork = unitOfWork;
         }
 
         // GET all users
@@ -43,7 +39,6 @@ namespace HealthNotebook.Api.Controllers.v1
             _user.Country = user.Country;
             _user.Phone = user.Phone;
             _user.Status =1;
-
 
             await _unitOfWork.Users.Add(_user);
             await _unitOfWork.CompleteAsync();
