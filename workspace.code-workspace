@@ -1,5 +1,5 @@
 {
-	"folders": [
+    "folders": [
         {
             "path": "HealthNotebook.Api"
         },
@@ -11,6 +11,9 @@
         },
         {
             "path": "HealthNotebook.Authentication"
+        },
+        {
+            "path": "Scripts"
         }
     ],
     "settings": {}
