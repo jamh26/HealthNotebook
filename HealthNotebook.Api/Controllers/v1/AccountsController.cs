@@ -6,6 +6,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using HealthNotebook.Authentication.Configuration;
+using HealthNotebook.Authentication.Models.DTO.Generic;
 using HealthNotebook.Authentication.Models.DTO.Incoming;
 using HealthNotebook.Authentication.Models.DTO.Outgoing;
 using HealthNotebook.DataService.IConfiguration;
@@ -20,15 +21,18 @@ namespace HealthNotebook.Api.Controllers.v1
     public class AccountsController : BaseController
     {
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly TokenValidationParameters _tokenValidationParameters;
         private readonly JwtConfig _jwtConfig;
 
         public AccountsController(
             IUnitOfWork unitOfWork,
             UserManager<IdentityUser> userManager,
+            TokenValidationParameters tokenValidationParameters,
             IOptionsMonitor<JwtConfig> optionMonitor) : base(unitOfWork)
         {
             _userManager = userManager;
             _jwtConfig = optionMonitor.CurrentValue;
+            _tokenValidationParameters = tokenValidationParameters;
         }
 
         /// <summary>
@@ -92,13 +96,14 @@ namespace HealthNotebook.Api.Controllers.v1
 
 
                 // Create a jwt token
-                var token = GenerateJwtToken(newUser);
+                var token = await GenerateJwtToken(newUser);
 
                 // return back to the user
                 return Ok(new UserRegistrationResponseDto()
                 {
                     Success = true,
-                    Token = token
+                    Token = token.JwtToken,
+                    RefreshToken = token.RefreshToken
                 });
             }
             else // Invalid Object
@@ -140,12 +145,13 @@ namespace HealthNotebook.Api.Controllers.v1
                 if (isCorrect)
                 {
                     // We need to generate a Jwt Token
-                    var jwtToken = GenerateJwtToken(userExist);
+                    var jwtToken = await GenerateJwtToken(userExist);
 
                     return Ok(new UserLoginResponseDto()
                     {
                         Success = true,
-                        Token = jwtToken
+                        Token = jwtToken.JwtToken,
+                        RefreshToken = jwtToken.RefreshToken
                     });
                 }
                 else
@@ -180,7 +186,7 @@ namespace HealthNotebook.Api.Controllers.v1
         /// </summary>
         /// <param name="user">User to generate the JWT token for</param>
         /// <returns>new string JWT token</returns>
-        private string GenerateJwtToken(IdentityUser user)
+        private async Task<TokenDataDto> GenerateJwtToken(IdentityUser user)
         {
             // the handler is going to be responsible for creating the token
             var jwtHandler = new JwtSecurityTokenHandler();
@@ -209,7 +215,38 @@ namespace HealthNotebook.Api.Controllers.v1
             // convert the security token into a string
             var jwtToken = jwtHandler.WriteToken(token);
 
-            return jwtToken;
+            // Generate a refresh token
+            var refreshToken = new RefreshToken
+            {
+                AddedDate = DateTime.UtcNow,
+                Token = $"{RandomStringGenerator(25)}_{Guid.NewGuid()}",
+                UserId = user.Id,
+                IsRevoked = false,
+                IsUsed = false,
+                Status = 1,
+                JwtId = token.Id,
+                ExpiryDate = DateTime.UtcNow.AddMonths(6)
+            };
+
+            await _unitOfWork.RefreshTokens.Add(refreshToken);
+            await _unitOfWork.CompleteAsync();
+
+            var tokenData = new TokenDataDto
+            {
+                JwtToken = jwtToken,
+                RefreshToken = refreshToken.Token
+            };
+
+            return tokenData;
+        }
+
+        private string RandomStringGenerator(int length)
+        {
+            var random = new Random();
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+            return new string(Enumerable.Repeat(chars, length)
+                .Select(s => s[random.Next(s.Length)]).ToArray());
         }
     }
 }
