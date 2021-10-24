@@ -197,7 +197,7 @@ namespace HealthNotebook.Api.Controllers.v1
                     new Claim(JwtRegisteredClaimNames.Email, user.Email),
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()) // used by the refresh token
                 }),
-                Expires = DateTime.UtcNow.AddHours(3), // todo update the expiration time to minutes
+                Expires = DateTime.UtcNow.Add(_jwtConfig.ExpiryTimeFrame), // todo update the expiration time to minutes
                 SigningCredentials = new SigningCredentials(
                     new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature // todo review the algorithm
                 )

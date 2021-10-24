@@ -59,6 +59,22 @@ namespace HealthNotebook.Api
                 opt.DefaultApiVersion = ApiVersion.Default;
             });
 
+            // Getting the secret from the config
+            var key = Encoding.ASCII.GetBytes(Configuration["JwtConfig:Secret"]);
+
+            var tokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(key),
+                ValidateIssuer = false, // ToDo Update
+                ValidateAudience = false, // ToDo Update
+                RequireExpirationTime = false, // ToDo Update
+                ValidateLifetime = true
+            };
+
+            // Injecting into our Di container
+            services.AddSingleton(tokenValidationParameters);
+
             services.AddAuthentication(option =>
             {
                 option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -67,21 +83,11 @@ namespace HealthNotebook.Api
             })
             .AddJwtBearer(jwt =>
             {
-                // Getting the secret from the config
-                var key = Encoding.ASCII.GetBytes(Configuration["JwtConfig:Secret"]);
-
                 jwt.SaveToken = true;
-                jwt.TokenValidationParameters = new TokenValidationParameters {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(key),
-                    ValidateIssuer = false, // ToDo Update
-                    ValidateAudience = false, // ToDo Update
-                    RequireExpirationTime = false, // ToDo Update
-                    ValidateLifetime = true
-                };
+                jwt.TokenValidationParameters = tokenValidationParameters;
             });
 
-            services.AddDefaultIdentity<IdentityUser>(options 
+            services.AddDefaultIdentity<IdentityUser>(options
                 => options.SignIn.RequireConfirmedAccount = true)
             .AddEntityFrameworkStores<AppDbContext>();
         }
