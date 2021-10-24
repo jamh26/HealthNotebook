@@ -5,11 +5,13 @@ using HealthNotebook.DataService.Data;
 using HealthNotebook.DataService.IConfiguration;
 using HealthNotebook.Entities.DbSet;
 using HealthNotebook.Entities.Dtos.Incoming;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HealthNotebook.Api.Controllers.v1
 {
-
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class UsersController : BaseController
     {
         public UsersController(IUnitOfWork unitOfWork) : base(unitOfWork)
