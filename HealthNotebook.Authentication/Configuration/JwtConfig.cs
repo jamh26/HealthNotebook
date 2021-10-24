@@ -1,4 +1,4 @@
-namespace HealthNotebook.Api.Configuration.Models
+namespace HealthNotebook.Authentication.Configuration
 {
     public class JwtConfig
     {

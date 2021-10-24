@@ -14,7 +14,7 @@ using Microsoft.OpenApi.Models;
 using HealthNotebook.DataService.Data;
 using Microsoft.EntityFrameworkCore;
 using HealthNotebook.DataService.IConfiguration;
-using HealthNotebook.Api.Configuration.Models;
+using HealthNotebook.Authentication.Configuration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;

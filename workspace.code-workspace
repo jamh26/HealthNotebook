@@ -8,6 +8,9 @@
         },
         {
             "path": "HealthNotebook.Entities"
+        },
+        {
+            "path": "HealthNotebook.Authentication"
         }
     ],
     "settings": {}
