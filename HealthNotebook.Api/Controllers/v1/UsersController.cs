@@ -5,15 +5,15 @@ using HealthNotebook.DataService.Data;
 using HealthNotebook.DataService.IConfiguration;
 using HealthNotebook.Entities.DbSet;
 using HealthNotebook.Entities.Dtos.Incoming;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HealthNotebook.Api.Controllers.v1
 {
-
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class UsersController : BaseController
     {
-        //private AppDbContext _context;
-
         public UsersController(IUnitOfWork unitOfWork) : base(unitOfWork)
         {
         }
@@ -38,7 +38,7 @@ namespace HealthNotebook.Api.Controllers.v1
             _user.DateOfBirth = Convert.ToDateTime(user.DateOfBirth);
             _user.Country = user.Country;
             _user.Phone = user.Phone;
-            _user.Status =1;
+            _user.Status = 1;
 
             await _unitOfWork.Users.Add(_user);
             await _unitOfWork.CompleteAsync();
