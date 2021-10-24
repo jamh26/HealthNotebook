@@ -34,5 +34,42 @@ namespace HealthNotebook.DataService.Repository
                 return new List<RefreshToken>();
             }
         }
+
+        public async Task<RefreshToken> GetByRefreshToken(string refreshToken)
+        {
+            try
+            {
+                return await dbSet.Where(x => x.Token == refreshToken)
+                                .AsNoTracking()
+                                .FirstOrDefaultAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "{Repo} GetByRefreshToken method has generated an error", typeof(RefreshTokensRepository));
+                return null;
+            }
+        }
+
+        public async Task<bool> MarkRefreshTokenAsUsed(RefreshToken refreshToken)
+        {
+            try
+            {
+                var token = await dbSet.Where(x => x.Token == refreshToken.Token)
+                                .AsNoTracking()
+                                .FirstOrDefaultAsync();
+
+                if (token == null)
+                    return false;
+
+                token.IsUsed = refreshToken.IsUsed;
+                dbSet.Update(token);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "{Repo} MarkRefreshTokenAsUsed method has generated an error", typeof(RefreshTokensRepository));
+                return false;
+            }
+        }
     }
 }
