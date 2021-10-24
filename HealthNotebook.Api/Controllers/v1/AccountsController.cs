@@ -78,6 +78,7 @@ namespace HealthNotebook.Api.Controllers.v1
 
                 // Adding user to the database
                 var _user = new User();
+                _user.IdentityId = new Guid(newUser.Id);
                 _user.LastName = registrationDto.LastName;
                 _user.FirstName = registrationDto.FirstName;
                 _user.Email = registrationDto.Email;
