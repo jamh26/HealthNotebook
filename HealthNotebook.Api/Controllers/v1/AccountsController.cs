@@ -113,6 +113,68 @@ namespace HealthNotebook.Api.Controllers.v1
             }
         }
 
+        [HttpPost]
+        [Route("Login")]
+        public async Task<IActionResult> Login([FromBody] UserLoginRequestDto loginDto)
+        {
+            if (ModelState.IsValid)
+            {
+                var userExist = await _userManager.FindByEmailAsync(loginDto.Email);
+
+                // 1 - Check if the user exists
+                if (userExist == null)
+                {
+                    return BadRequest(new UserLoginResponseDto()
+                    {
+                        Success = false,
+                        Errors = new List<string>()
+                        {
+                            "Invalid authentication request"
+                        }
+                    });
+                }
+
+                // 2 - Check if the user has a valid password
+                var isCorrect = await _userManager.CheckPasswordAsync(userExist, loginDto.Password);
+
+                if (isCorrect)
+                {
+                    // We need to generate a Jwt Token
+                    var jwtToken = GenerateJwtToken(userExist);
+
+                    return Ok(new UserLoginResponseDto()
+                    {
+                        Success = true,
+                        Token = jwtToken
+                    });
+                }
+                else
+                {
+                    // Password doesn't match
+                    return BadRequest(new UserLoginResponseDto()
+                    {
+                        Success = false,
+                        Errors = new List<string>()
+                        {
+                            "Invalid authentication request"
+                        }
+                    });
+                }
+            }
+            else // Invalid auth request
+            {
+                return BadRequest(new UserLoginResponseDto()
+                {
+                    Success = false,
+                    Errors = new List<string>()
+                        {
+                            "Invalid authentication request"
+                        }
+                });
+            }
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// Private method used to Generate a JWT Token and return it in string format
         /// </summary>
