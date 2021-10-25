@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace HealthNotebook.Authentication.Models.DTO.Outgoing
 {
-    public class AuthResult
+    public class AuthResultDto
     {
         public string Token { get; set; }
         public string RefreshToken { get; set; }

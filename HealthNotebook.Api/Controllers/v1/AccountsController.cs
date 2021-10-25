@@ -220,7 +220,7 @@ namespace HealthNotebook.Api.Controllers.v1
             }
         }
 
-        private async Task<AuthResult> VerifyToken(TokenRequestDto tokenRequestDto)
+        private async Task<AuthResultDto> VerifyToken(TokenRequestDto tokenRequestDto)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
 
@@ -248,7 +248,7 @@ namespace HealthNotebook.Api.Controllers.v1
                 // Checking if the JWT token has expired
                 if (expDate > DateTime.UtcNow)
                 {
-                    return new AuthResult()
+                    return new AuthResultDto()
                     {
                         Success = false,
                         Errors = new List<string>()
@@ -263,7 +263,7 @@ namespace HealthNotebook.Api.Controllers.v1
 
                 if (refreshTokenExist == null)
                 {
-                    return new AuthResult()
+                    return new AuthResultDto()
                     {
                         Success = false,
                         Errors = new List<string>()
@@ -276,7 +276,7 @@ namespace HealthNotebook.Api.Controllers.v1
                 // Check the expiry date of a refresh token
                 if (refreshTokenExist.ExpiryDate < DateTime.UtcNow)
                 {
-                    return new AuthResult()
+                    return new AuthResultDto()
                     {
                         Success = false,
                         Errors = new List<string>()
@@ -289,7 +289,7 @@ namespace HealthNotebook.Api.Controllers.v1
                 // Check if the refresh token has been used or not
                 if (refreshTokenExist.IsUsed)
                 {
-                    return new AuthResult()
+                    return new AuthResultDto()
                     {
                         Success = false,
                         Errors = new List<string>()
@@ -302,7 +302,7 @@ namespace HealthNotebook.Api.Controllers.v1
                 // Check if the refresh token has been revoked
                 if (refreshTokenExist.IsRevoked)
                 {
-                    return new AuthResult()
+                    return new AuthResultDto()
                     {
                         Success = false,
                         Errors = new List<string>()
@@ -317,7 +317,7 @@ namespace HealthNotebook.Api.Controllers.v1
 
                 if (refreshTokenExist.JwtId != jti)
                 {
-                    return new AuthResult()
+                    return new AuthResultDto()
                     {
                         Success = false,
                         Errors = new List<string>()
@@ -341,7 +341,7 @@ namespace HealthNotebook.Api.Controllers.v1
 
                     if (dbUser == null)
                     {
-                        return new AuthResult()
+                        return new AuthResultDto()
                         {
                             Success = false,
                             Errors = new List<string>()
@@ -354,7 +354,7 @@ namespace HealthNotebook.Api.Controllers.v1
                     // Generate a jwt token
                     var tokens = await GenerateJwtToken(dbUser);
 
-                    return new AuthResult
+                    return new AuthResultDto()
                     {
                         Token = tokens.JwtToken,
                         Success = true,
@@ -362,7 +362,7 @@ namespace HealthNotebook.Api.Controllers.v1
                     };
                 }
 
-                return new AuthResult()
+                return new AuthResultDto()
                 {
                     Success = false,
                     Errors = new List<string>()

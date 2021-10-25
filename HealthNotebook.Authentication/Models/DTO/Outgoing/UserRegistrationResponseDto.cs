@@ -1,7 +1,7 @@
 namespace HealthNotebook.Authentication.Models.DTO.Outgoing
 {
-    public class UserRegistrationResponseDto : AuthResult
+    public class UserRegistrationResponseDto : AuthResultDto
     {
-        
+
     }
 }
