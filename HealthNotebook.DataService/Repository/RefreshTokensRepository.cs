@@ -55,14 +55,13 @@ namespace HealthNotebook.DataService.Repository
             try
             {
                 var token = await dbSet.Where(x => x.Token == refreshToken.Token)
-                                .AsNoTracking()
                                 .FirstOrDefaultAsync();
 
                 if (token == null)
                     return false;
 
                 token.IsUsed = refreshToken.IsUsed;
-                dbSet.Update(token);
+
                 return true;
             }
             catch (Exception ex)
