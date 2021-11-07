@@ -61,6 +61,7 @@ namespace HealthNotebook.DataService.Repository
                     return false;
 
                 token.IsUsed = refreshToken.IsUsed;
+                token.UpdateDate = DateTime.UtcNow;
 
                 return true;
             }

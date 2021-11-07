@@ -68,6 +68,7 @@ namespace HealthNotebook.Api.Controllers.v1
             userProfile.Gender = profileToUpdate.Gender;
             userProfile.MobileNumber = profileToUpdate.MobileNumber;
             userProfile.Country = profileToUpdate.Country;
+            userProfile.UpdateDate = DateTime.UtcNow;
 
             var isUpdated = await _unitOfWork.Users.UpdateUserProfile(userProfile);
 
