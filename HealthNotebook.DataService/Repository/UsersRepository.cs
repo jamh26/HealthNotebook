@@ -70,5 +70,21 @@ namespace HealthNotebook.DataService.Repository
                 return false;
             }
         }
+
+        public async Task<User> GetByIdentityId(Guid identityId)
+        {
+            try
+            {
+                return await dbSet.Where(x => x.Status == 1
+                                                    && x.IdentityId == identityId)
+                                .AsNoTracking()
+                                .FirstOrDefaultAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "{Repo} GetByIdentityId method has generated an error", typeof(UsersRepository));
+                return null;
+            }
+        }
     }
 }
