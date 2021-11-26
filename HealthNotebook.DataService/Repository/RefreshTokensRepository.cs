@@ -8,68 +8,67 @@ using HealthNotebook.Entities.DbSet;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-namespace HealthNotebook.DataService.Repository
+namespace HealthNotebook.DataService.Repository;
+
+public class RefreshTokensRepository : GenericRepository<RefreshToken>, IRefreshTokensRepository
 {
-    public class RefreshTokensRepository : GenericRepository<RefreshToken>, IRefreshTokensRepository
+    public RefreshTokensRepository(
+        AppDbContext context,
+        ILogger logger
+        ) : base(context, logger)
     {
-        public RefreshTokensRepository(
-            AppDbContext context,
-            ILogger logger
-            ) : base(context, logger)
-        {
 
+    }
+
+    public override async Task<IEnumerable<RefreshToken>> All()
+    {
+        try
+        {
+            return await dbSet.Where(x => x.Status == 1)
+                            .AsNoTracking()
+                            .ToListAsync();
         }
-
-        public override async Task<IEnumerable<RefreshToken>> All()
+        catch (Exception ex)
         {
-            try
-            {
-                return await dbSet.Where(x => x.Status == 1)
-                                .AsNoTracking()
-                                .ToListAsync();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "{Repo} All method has generated an error", typeof(RefreshTokensRepository));
-                return new List<RefreshToken>();
-            }
+            _logger.LogError(ex, "{Repo} All method has generated an error", typeof(RefreshTokensRepository));
+            return new List<RefreshToken>();
         }
+    }
 
-        public async Task<RefreshToken> GetByRefreshToken(string refreshToken)
+    public async Task<RefreshToken> GetByRefreshToken(string refreshToken)
+    {
+        try
         {
-            try
-            {
-                return await dbSet.Where(x => x.Token == refreshToken)
-                                .AsNoTracking()
-                                .FirstOrDefaultAsync();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "{Repo} GetByRefreshToken method has generated an error", typeof(RefreshTokensRepository));
-                return null;
-            }
+            return await dbSet.Where(x => x.Token == refreshToken)
+                            .AsNoTracking()
+                            .FirstOrDefaultAsync();
         }
-
-        public async Task<bool> MarkRefreshTokenAsUsed(RefreshToken refreshToken)
+        catch (Exception ex)
         {
-            try
-            {
-                var token = await dbSet.Where(x => x.Token == refreshToken.Token)
-                                .FirstOrDefaultAsync();
+            _logger.LogError(ex, "{Repo} GetByRefreshToken method has generated an error", typeof(RefreshTokensRepository));
+            return null;
+        }
+    }
 
-                if (token == null)
-                    return false;
+    public async Task<bool> MarkRefreshTokenAsUsed(RefreshToken refreshToken)
+    {
+        try
+        {
+            var token = await dbSet.Where(x => x.Token == refreshToken.Token)
+                            .FirstOrDefaultAsync();
 
-                token.IsUsed = refreshToken.IsUsed;
-                token.UpdateDate = DateTime.UtcNow;
-
-                return true;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "{Repo} MarkRefreshTokenAsUsed method has generated an error", typeof(RefreshTokensRepository));
+            if (token == null)
                 return false;
-            }
+
+            token.IsUsed = refreshToken.IsUsed;
+            token.UpdateDate = DateTime.UtcNow;
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "{Repo} MarkRefreshTokenAsUsed method has generated an error", typeof(RefreshTokensRepository));
+            return false;
         }
     }
 }

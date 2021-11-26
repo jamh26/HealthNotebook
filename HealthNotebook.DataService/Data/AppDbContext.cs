@@ -2,16 +2,15 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using HealthNotebook.Entities.DbSet;
 
-namespace HealthNotebook.DataService.Data
+namespace HealthNotebook.DataService.Data;
+
+public class AppDbContext : IdentityDbContext
 {
-    public class AppDbContext : IdentityDbContext
+    public virtual DbSet<User> Users { get; set; }
+    public virtual DbSet<RefreshToken> RefreshTokens { get; set; }
+
+    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {
-        public virtual DbSet<User> Users { get; set; }
-        public virtual DbSet<RefreshToken> RefreshTokens { get; set; }
 
-        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
-        {
-
-        }
     }
 }
