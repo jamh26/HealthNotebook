@@ -1,9 +1,7 @@
-using System;
-using System.Linq;
-using System.Threading.Tasks;
-using HealthNotebook.DataService.Data;
+using HealthNotebook.Configuration.Messages;
 using HealthNotebook.DataService.IConfiguration;
 using HealthNotebook.Entities.DbSet;
+using HealthNotebook.Entities.Dtos.Generic;
 using HealthNotebook.Entities.Dtos.Incoming;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -26,8 +24,10 @@ public class UsersController : BaseController
     public async Task<IActionResult> GetUsers()
     {
         var users = await _unitOfWork.Users.All();
-
-        return Ok(users);
+        var result = new PagedResult<User>();
+        result.Content = users.ToList();
+        result.ResultCount = users.Count();
+        return Ok(result);
     }
 
     // POST
@@ -56,6 +56,20 @@ public class UsersController : BaseController
     {
         var user = await _unitOfWork.Users.GetById(id);
 
-        return Ok(user);
+        var result = new Result<User>();
+
+        if (user != null)
+        {
+
+            result.Content = user;
+
+            return Ok(result);
+        }
+        result.Error = PopulateError(
+            404,
+            ErrorMessages.Users.UserNotFound,
+            ErrorMessages.Generic.ObjectNotFound
+        );
+        return BadRequest(result);
     }
 }
