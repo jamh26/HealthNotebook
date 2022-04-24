@@ -1,22 +1,10 @@
 {
     "folders": [
         {
-            "path": "HealthNotebook.Api"
+            "path": "scripts"
         },
         {
-            "path": "HealthNotebook.DataService"
-        },
-        {
-            "path": "HealthNotebook.Entities"
-        },
-        {
-            "path": "HealthNotebook.Authentication"
-        },
-        {
-            "path": "Scripts"
-        },
-        {
-            "path": "HealthNotebook.Configuration"
+            "path": "src"
         }
     ],
     "settings": {}
