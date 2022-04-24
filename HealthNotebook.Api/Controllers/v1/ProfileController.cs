@@ -1,11 +1,10 @@
-using System;
-using System.Threading.Tasks;
+using AutoMapper;
 using HealthNotebook.Configuration.Messages;
 using HealthNotebook.DataService.IConfiguration;
 using HealthNotebook.Entities.DbSet;
-using HealthNotebook.Entities.Dtos.Errors;
 using HealthNotebook.Entities.Dtos.Generic;
 using HealthNotebook.Entities.Dtos.Incoming.Profile;
+using HealthNotebook.Entities.Dtos.Outgoing.Profile;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -18,7 +17,8 @@ public class ProfileController : BaseController
 {
     public ProfileController(
         IUnitOfWork unitOfWork,
-        UserManager<IdentityUser> userManager) : base(unitOfWork, userManager)
+        UserManager<IdentityUser> userManager,
+        IMapper mapper) : base(unitOfWork, userManager, mapper)
     {
     }
 
@@ -27,7 +27,7 @@ public class ProfileController : BaseController
     {
         var loggedInUser = await _userManager.GetUserAsync(HttpContext.User);
 
-        var result = new Result<User>();
+        var result = new Result<ProfileDto>();
         if (loggedInUser == null)
         {
 
@@ -52,14 +52,17 @@ public class ProfileController : BaseController
             );
             return BadRequest(result);
         }
-        result.Content = profile;
+
+        var mappedProfile = _mapper.Map<ProfileDto>(profile);
+
+        result.Content = mappedProfile;
         return Ok(result);
     }
 
     [HttpPut]
     public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileDto profileToUpdate)
     {
-        var result = new Result<User>();
+        var result = new Result<ProfileDto>();
         if (!ModelState.IsValid)
         {
             result.Error = PopulateError(
@@ -107,7 +110,11 @@ public class ProfileController : BaseController
         if (isUpdated)
         {
             await _unitOfWork.CompleteAsync();
-            result.Content = userProfile;
+
+            var mappedProfile = _mapper.Map<ProfileDto>(userProfile);
+
+            result.Content = mappedProfile;
+
             return Ok(result);
         }
 
