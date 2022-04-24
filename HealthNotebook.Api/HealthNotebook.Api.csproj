@@ -7,6 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="11.0.1" />
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="11.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="6.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="5.0.0" />
@@ -20,6 +22,7 @@
   <ItemGroup>
     <ProjectReference Include="..\HealthNotebook.DataService\HealthNotebook.DataService.csproj" />
     <ProjectReference Include="..\HealthNotebook.Authentication\HealthNotebook.Authentication.csproj" />
+    <ProjectReference Include="..\HealthNotebook.Configuration\HealthNotebook.Configuration.csproj" />
   </ItemGroup>
 
 </Project>

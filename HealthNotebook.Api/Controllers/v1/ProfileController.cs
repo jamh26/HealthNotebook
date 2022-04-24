@@ -1,7 +1,10 @@
-using System;
-using System.Threading.Tasks;
+using AutoMapper;
+using HealthNotebook.Configuration.Messages;
 using HealthNotebook.DataService.IConfiguration;
+using HealthNotebook.Entities.DbSet;
+using HealthNotebook.Entities.Dtos.Generic;
 using HealthNotebook.Entities.Dtos.Incoming.Profile;
+using HealthNotebook.Entities.Dtos.Outgoing.Profile;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -14,7 +17,8 @@ public class ProfileController : BaseController
 {
     public ProfileController(
         IUnitOfWork unitOfWork,
-        UserManager<IdentityUser> userManager) : base(unitOfWork, userManager)
+        UserManager<IdentityUser> userManager,
+        IMapper mapper) : base(unitOfWork, userManager, mapper)
     {
     }
 
@@ -23,9 +27,16 @@ public class ProfileController : BaseController
     {
         var loggedInUser = await _userManager.GetUserAsync(HttpContext.User);
 
+        var result = new Result<ProfileDto>();
         if (loggedInUser == null)
         {
-            return BadRequest("User not found");
+
+            result.Error = PopulateError(
+                400,
+                ErrorMessages.Profile.UserNotFound,
+                ErrorMessages.Generic.BadRequest
+            );
+            return BadRequest(result);
         }
 
         var identityId = new Guid(loggedInUser.Id);
@@ -34,25 +45,44 @@ public class ProfileController : BaseController
 
         if (profile == null)
         {
-            return BadRequest("User not found");
+            result.Error = PopulateError(
+                400,
+                ErrorMessages.Profile.UserNotFound,
+                ErrorMessages.Generic.BadRequest
+            );
+            return BadRequest(result);
         }
 
-        return Ok(profile);
+        var mappedProfile = _mapper.Map<ProfileDto>(profile);
+
+        result.Content = mappedProfile;
+        return Ok(result);
     }
 
     [HttpPut]
     public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileDto profileToUpdate)
     {
+        var result = new Result<ProfileDto>();
         if (!ModelState.IsValid)
         {
-            return BadRequest("Invalid payload");
+            result.Error = PopulateError(
+                400,
+                ErrorMessages.Generic.InvalidPayload,
+                ErrorMessages.Generic.BadRequest
+            );
+            return BadRequest(result);
         }
 
         var loggedInUser = await _userManager.GetUserAsync(HttpContext.User);
 
         if (loggedInUser == null)
         {
-            return BadRequest("User not found");
+            result.Error = PopulateError(
+                400,
+                ErrorMessages.Profile.UserNotFound,
+                ErrorMessages.Generic.BadRequest
+            );
+            return BadRequest(result);
         }
 
         var identityId = new Guid(loggedInUser.Id);
@@ -61,7 +91,12 @@ public class ProfileController : BaseController
 
         if (userProfile == null)
         {
-            return BadRequest("User not found");
+            result.Error = PopulateError(
+                400,
+                ErrorMessages.Profile.UserNotFound,
+                ErrorMessages.Generic.BadRequest
+            );
+            return BadRequest(result);
         }
 
         userProfile.Address = profileToUpdate.Address;
@@ -75,9 +110,20 @@ public class ProfileController : BaseController
         if (isUpdated)
         {
             await _unitOfWork.CompleteAsync();
-            return Ok(userProfile);
+
+            var mappedProfile = _mapper.Map<ProfileDto>(userProfile);
+
+            result.Content = mappedProfile;
+
+            return Ok(result);
         }
 
-        return BadRequest("Something went wrong, please try again later");
+        result.Error = PopulateError(
+                    500,
+                    ErrorMessages.Generic.SomethingWentWrong,
+                    ErrorMessages.Generic.UnableToProcess
+        );
+
+        return BadRequest(result);
     }
 }

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using AutoMapper;
 using HealthNotebook.Authentication.Configuration;
 using HealthNotebook.Authentication.Models.DTO.Generic;
 using HealthNotebook.Authentication.Models.DTO.Incoming;
@@ -27,7 +28,8 @@ public class AccountsController : BaseController
         IUnitOfWork unitOfWork,
         UserManager<IdentityUser> userManager,
         TokenValidationParameters tokenValidationParameters,
-        IOptionsMonitor<JwtConfig> optionMonitor) : base(unitOfWork, userManager)
+        IOptionsMonitor<JwtConfig> optionMonitor,
+        IMapper mapper) : base(unitOfWork, userManager, mapper)
     {
         _jwtConfig = optionMonitor.CurrentValue;
         _tokenValidationParameters = tokenValidationParameters;
